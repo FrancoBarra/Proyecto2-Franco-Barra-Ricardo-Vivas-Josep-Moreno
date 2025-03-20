@@ -20,7 +20,7 @@ public class ArbolBinario {
         return raiz == null;
     }
 
-        public NodoArbol add(int data, NodoArbol root) {
+    public NodoArbol add(int data, NodoArbol root) {
         NodoArbol nuevo = new NodoArbol(data);
         if (isEmthy()) {
             this.raiz = nuevo;
@@ -144,65 +144,57 @@ public class ArbolBinario {
         }
     }
 
-    public String imprimirInOrder(NodoArbol nodo, String cadena) {
-
-        if (nodo != null) {
-            cadena = this.imprimirInOrder(nodo.getIzHijo(), cadena);
-            cadena += nodo.getData() + ", ";
-            cadena = this.imprimirInOrder(nodo.getDeHijo(), cadena);
-
-        }
-        return cadena;
-    }
-
-    public void imprimirPostOrder(NodoArbol nodo) {
-        if (nodo != null) {
-            this.imprimirPostOrder(nodo.getIzHijo());
-            this.imprimirPostOrder(nodo.getDeHijo());
-            System.out.println(nodo.getData());
-
-        }
-
-    }
-
-    public void imprimirPreOrder(NodoArbol nodo) {
-        if (nodo != null) {
-            System.out.println(nodo.getData());
-            this.imprimirPreOrder(nodo.getIzHijo());
-            this.imprimirPreOrder(nodo.getDeHijo());
-
-        }
-
-    }
-
     public NodoArbol buscarPreorder(int i, NodoArbol nodo) {
-        if (nodo != null) {
-            if (nodo.getData() == i) {
-                return nodo;
-            }
-            nodo = buscarPreorder(i, nodo.getIzHijo());
-
-            if (nodo == null) {
-                nodo = buscarPreorder(i, nodo.getDeHijo());
-            }
+    if (nodo != null) {
+        if (nodo.getData() == i) {
             return nodo;
         }
-        return null;
+        NodoArbol resultadoIzquierdo = buscarPreorder(i, nodo.getIzHijo());
+        if (resultadoIzquierdo != null) {
+            return resultadoIzquierdo; 
+        }
+
+        return buscarPreorder(i, nodo.getDeHijo());
     }
+    return null;
+}
 
-    public NodoArbol buscarIndicePre(int i, NodoArbol nodo) {
-        if (i == 0) {
+     public NodoArbol buscarPostorder(int i, NodoArbol nodo) {
+    if (nodo != null) {
+
+        NodoArbol resultadoIzquierdo = buscarPostorder(i, nodo.getIzHijo());
+        if (resultadoIzquierdo != null) {
+            return resultadoIzquierdo; 
+        }
+
+
+        NodoArbol resultadoDerecho = buscarPostorder(i, nodo.getDeHijo());
+        if (resultadoDerecho != null) {
+            return resultadoDerecho; 
+        }
+
+       
+        if (nodo.getData() == i) {
             return nodo;
         }
-        if (nodo != null) {
-            nodo = this.buscarIndicePre(i--, nodo.getIzHijo());
-
-            if (nodo == null) {
-                nodo = this.buscarIndicePre(i--, nodo.getDeHijo());
-            }
-            return nodo;
-        }
-        return null;
     }
+    return null;
+}
+     public NodoArbol buscarInorder(int i, NodoArbol nodo) {
+    if (nodo != null) {
+        NodoArbol resultadoIzquierdo = buscarInorder(i, nodo.getIzHijo());
+        if (resultadoIzquierdo != null) {
+            return resultadoIzquierdo;
+        }
+
+
+        if (nodo.getData() == i) {
+            return nodo; 
+        }
+
+        return buscarInorder(i, nodo.getDeHijo());
+    }
+    return null; 
+}
 }
 
