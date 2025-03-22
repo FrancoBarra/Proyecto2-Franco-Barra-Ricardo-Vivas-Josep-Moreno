@@ -14,10 +14,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileReader;
-import java.util.Map;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 
 public class DicotomicKeyGUI extends JFrame {
     private JTextArea questionArea;
@@ -94,26 +94,24 @@ public class DicotomicKeyGUI extends JFrame {
     }
 
     private void cargarClaveDicotomica(File file) {
-        JSONParser parser = new JSONParser();
-        try {
-            JSONObject jsonObject = (JSONObject) parser.parse(new FileReader(file));
-            for (Object key : jsonObject.keySet()) {
-                String nombreClave = (String) key;
-                JSONArray especies = (JSONArray) jsonObject.get(nombreClave);
-                for (Object especie : especies) {
-                    JSONObject especieObj = (JSONObject) especie;
-                    for (Object nombreEspecie : especieObj.keySet()) {
-                        String nombre = (String) nombreEspecie;
-                        JSONArray preguntas = (JSONArray) especieObj.get(nombre);
-                        for (Object pregunta : preguntas) {
-                            JSONObject preguntaObj = (JSONObject) pregunta;
-                            for (Object preguntaText : preguntaObj.keySet()) {
-                                String preguntaStr = (String) preguntaText;
-                                boolean respuesta = (Boolean) preguntaObj.get(preguntaText);
+        try (FileReader fileReader = new FileReader(file);
+             JsonReader jsonReader = Json.createReader(fileReader)) {
+
+            JsonObject jsonObject = jsonReader.readObject();
+            for (String nombreClave : jsonObject.keySet()) {
+                JsonArray especies = jsonObject.getJsonArray(nombreClave);
+                for (javax.json.JsonValue especieValue : especies) {
+                    JsonObject especieObj = (JsonObject) especieValue;
+                    for (String nombreEspecie : especieObj.keySet()) {
+                        JsonArray preguntas = especieObj.getJsonArray(nombreEspecie);
+                        for (javax.json.JsonValue preguntaValue : preguntas) {
+                            JsonObject preguntaObj = (JsonObject) preguntaValue;
+                            for (String preguntaText : preguntaObj.keySet()) {
+                                boolean respuesta = preguntaObj.getBoolean(preguntaText);
                                 // Insertar en la tabla hash
-                                tabla.insertar(nombre, preguntaStr);
+                                tabla.insertar(nombreEspecie, preguntaText);
                                 // Insertar en el árbol binario
-                                arbol.add(nombre.hashCode(), arbol.getRaiz());
+                                arbol.add(nombreEspecie.hashCode(), arbol.getRaiz());
                             }
                         }
                     }
