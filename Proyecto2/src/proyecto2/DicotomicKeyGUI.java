@@ -8,6 +8,11 @@ package proyecto2;
  *
  * @author joseph.moreno
  */
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
+import org.graphstream.ui.swing_viewer.SwingViewer;
+import org.graphstream.ui.view.Viewer;
+
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonObject;
@@ -22,7 +27,7 @@ import java.io.FileReader;
 public class DicotomicKeyGUI extends JFrame {
     private JTextArea questionArea;
     private JTextField searchField;
-    private JButton loadButton, searchHashButton, searchTreeButton;
+    private JButton loadButton, searchHashButton, searchTreeButton, showGraphButton;
     private ArbolBinario arbol;
     private HashTable tabla;
 
@@ -43,14 +48,16 @@ public class DicotomicKeyGUI extends JFrame {
         questionArea.setEditable(false);
         add(new JScrollPane(questionArea), BorderLayout.CENTER);
 
-        // Panel inferior para búsqueda
-        JPanel bottomPanel = new JPanel();
+        // Panel inferior para búsqueda y mostrar grafo
+        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         searchField = new JTextField(20);
         searchHashButton = new JButton("Buscar por Hash");
         searchTreeButton = new JButton("Buscar por Árbol");
+        showGraphButton = new JButton("Mostrar Grafo");
         bottomPanel.add(searchField);
         bottomPanel.add(searchHashButton);
         bottomPanel.add(searchTreeButton);
+        bottomPanel.add(showGraphButton);
         add(bottomPanel, BorderLayout.SOUTH);
 
         // Inicializar estructuras de datos
@@ -89,6 +96,13 @@ public class DicotomicKeyGUI extends JFrame {
                 String nombrePlanta = searchField.getText();
                 String resultado = buscarEnArbol(nombrePlanta);
                 questionArea.setText(resultado);
+            }
+        });
+
+        showGraphButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                mostrarGrafo();
             }
         });
     }
@@ -145,6 +159,28 @@ public class DicotomicKeyGUI extends JFrame {
         } else {
             return "Planta no encontrada en el árbol.";
         }
+    }
+
+    private void mostrarGrafo() {
+        Graph graph = new SingleGraph("Árbol Binario");
+        construirGrafo(arbol.getRaiz(), graph, null);
+        Viewer viewer = new SwingViewer(graph, Viewer.ThreadingModel.GRAPH_IN_ANOTHER_THREAD);
+        viewer.enableAutoLayout();
+        viewer.addDefaultView(true);
+    }
+
+    private void construirGrafo(NodoArbol nodo, Graph graph, String parentId) {
+        if (nodo == null) return;
+
+        String nodeId = Integer.toString(nodo.getData());
+        graph.addNode(nodeId).setAttribute("ui.label", nodeId);
+
+        if (parentId != null) {
+            graph.addEdge(parentId + "-" + nodeId, parentId, nodeId);
+        }
+
+        construirGrafo(nodo.getIzHijo(), graph, nodeId);
+        construirGrafo(nodo.getDeHijo(), graph, nodeId);
     }
 
     public static void main(String[] args) {
