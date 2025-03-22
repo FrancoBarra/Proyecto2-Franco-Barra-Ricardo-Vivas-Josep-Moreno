@@ -8,16 +8,16 @@ package proyecto2;
  *
  * @author joseph.moreno
  */
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonObject;
+import javax.json.JsonReader;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileReader;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 
 public class DicotomicKeyGUI extends JFrame {
     private JTextArea questionArea;
@@ -98,26 +98,40 @@ public class DicotomicKeyGUI extends JFrame {
              JsonReader jsonReader = Json.createReader(fileReader)) {
 
             JsonObject jsonObject = jsonReader.readObject();
-            for (String nombreClave : jsonObject.keySet()) {
-                JsonArray especies = jsonObject.getJsonArray(nombreClave);
-                for (javax.json.JsonValue especieValue : especies) {
-                    JsonObject especieObj = (JsonObject) especieValue;
-                    for (String nombreEspecie : especieObj.keySet()) {
-                        JsonArray preguntas = especieObj.getJsonArray(nombreEspecie);
-                        for (javax.json.JsonValue preguntaValue : preguntas) {
-                            JsonObject preguntaObj = (JsonObject) preguntaValue;
-                            for (String preguntaText : preguntaObj.keySet()) {
-                                boolean respuesta = preguntaObj.getBoolean(preguntaText);
-                                // Insertar en la tabla hash
-                                tabla.insertar(nombreEspecie, preguntaText);
-                                // Insertar en el árbol binario
-                                arbol.add(nombreEspecie.hashCode(), arbol.getRaiz());
-                            }
-                        }
-                    }
+
+            // Obtener el nombre de la clave dicotómica
+            String nombreClave = jsonObject.keySet().iterator().next();
+            JsonArray especiesArray = jsonObject.getJsonArray(nombreClave);
+
+            // Recorrer las especies
+            for (javax.json.JsonValue especieValue : especiesArray) {
+                JsonObject especieObj = (JsonObject) especieValue;
+
+                // Obtener el nombre de la especie
+                String nombreEspecie = especieObj.keySet().iterator().next();
+                JsonArray preguntasArray = especieObj.getJsonArray(nombreEspecie);
+
+                // Recorrer las preguntas de la especie
+                for (javax.json.JsonValue preguntaValue : preguntasArray) {
+                    JsonObject preguntaObj = (JsonObject) preguntaValue;
+
+                    // Obtener la pregunta y su valor booleano
+                    String preguntaTexto = preguntaObj.keySet().iterator().next();
+                    boolean respuesta = preguntaObj.getBoolean(preguntaTexto);
+
+                    // Insertar en la tabla hash
+                    tabla.insertar(nombreEspecie, preguntaTexto);
+
+                    // Insertar en el árbol binario
+                    arbol.add(nombreEspecie.hashCode(), arbol.getRaiz());
+
+                    // Mostrar la información en el área de texto
+                    questionArea.append("Especie: " + nombreEspecie + "\n");
+                    questionArea.append("Pregunta: " + preguntaTexto + " -> " + respuesta + "\n");
                 }
             }
-            questionArea.setText("Clave dicotómica cargada correctamente.");
+
+            questionArea.append("Clave dicotómica cargada correctamente.\n");
         } catch (Exception e) {
             e.printStackTrace();
             questionArea.setText("Error al cargar la clave dicotómica.");

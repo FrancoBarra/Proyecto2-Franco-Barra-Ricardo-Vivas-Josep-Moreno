@@ -6,27 +6,21 @@ package proyecto2;
 
 /**
  *
- * @author frank
+ * @author joseph.moreno
  */
-public class NodoArbol<T> {
+public class NodoArbol {
     private int data;
     private NodoArbol izHijo;
     private NodoArbol deHijo;
-    private int altura;
-    
-    public NodoArbol(int data){
-        this.data=data;
-        this.izHijo=null;
-        this.deHijo=null;
-        this.altura=1;
-    }
-    
-    public int getData(){
-        return data;
-    }
-    
-    public void setData(int data){
+
+    public NodoArbol(int data) {
         this.data = data;
+        this.izHijo = null;
+        this.deHijo = null;
+    }
+
+    public int getData() {
+        return data;
     }
 
     public NodoArbol getIzHijo() {
@@ -44,17 +38,4 @@ public class NodoArbol<T> {
     public void setDeHijo(NodoArbol deHijo) {
         this.deHijo = deHijo;
     }
-
-    public int getAltura() {
-        return altura;
-    }
-
-    public void setAltura(int altura) {
-        this.altura = altura;
-    }
-    
-     public boolean isTieneHijo(){
-        return this.deHijo!=null || this.izHijo!=null;
-    }
-   
 }
